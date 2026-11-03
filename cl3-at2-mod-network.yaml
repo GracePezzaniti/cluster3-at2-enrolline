@@ -53,6 +53,17 @@
       Tags:
         - Key: Name
           Value: enrolline-app-a
+          
+  AppSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.30.12.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: enrolline-app-b
 
   DataSubnetA:
     Type: AWS::EC2::Subnet
