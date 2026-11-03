@@ -198,3 +198,62 @@
       Tags:
         - Key: Name
           Value: enrolline-db-sg
+# VPC Endpoint addition
+  S3GatewayEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref Vpc
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.s3
+      VpcEndpointType: Gateway
+      RouteTableIds:
+        - !Ref AppRouteTable
+      Tags:
+        - Key: Name
+          Value: enrolline-s3-endpoint
+          
+ # Following is S3 for flowlogs. The design asks for cloudwatch logs but that's not possible in learner lab. 
+ # This is my compromise, so we need to be clear that it's just for learner lab.
+ # It's technically storage but I'm adding it here for clarity. 
+ # Integrator may choose to move it to the storage block.
+ # The following is what we'd use for cloudwatch logs:
+ # FlowLogGroup:
+ #   Type: AWS::Logs::LogGroup
+ #   Properties:
+ #     LogGroupName: /enrolline/vpc-flow-logs
+ #     RetentionInDays: 30
+ #
+ # VpcFlowLog:
+ #   Type: AWS::EC2::FlowLog
+ #   Properties:
+ #     ResourceType: VPC
+ #     ResourceId: !Ref Vpc
+ #     TrafficType: ALL
+ #     LogDestinationType: cloud-watch-logs
+ #     LogGroupName: !Ref FlowLogGroup
+ #     DeliverLogsPermissionArn: !Sub arn:aws:iam::${AWS::AccountId}:role/LabRole
+ 
+  FlowLogBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: enrolline-flow-log-bucket
+        - Key: Purpose
+          Value: vpc-flow-logs   
+# Enabling Flowlogs.
+  VpcFlowLog:
+    Type: AWS::EC2::FlowLog
+    Properties:
+      ResourceType: VPC
+      ResourceId: !Ref Vpc
+      TrafficType: ALL
+      LogDestinationType: s3
+      LogDestination: !GetAtt FlowLogBucket.Arn
+      Tags:
+        - Key: Name
+          Value: enrolline-flow-log
