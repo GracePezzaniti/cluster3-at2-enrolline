@@ -1,0 +1,33 @@
+  DbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: enrolline-db-subnet-group
+      DBSubnetGroupDescription: Enrolline database subnets (data-a and data-b)
+      SubnetIds:
+        - !Ref DataSubnetA
+        - !Ref DataSubnetB
+      Tags:
+        - Key: Name
+          Value: enrolline-db-subnet-group
+
+  Database:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: enrolline-db
+      Engine: postgres
+      DBInstanceClass: !Ref DbInstanceClass
+      MultiAZ: false
+      AvailabilityZone: !GetAtt DataSubnetA.AvailabilityZone
+      AllocatedStorage: '20'
+      StorageType: gp3
+      StorageEncrypted: true
+      MasterUsername: !Ref DbMasterUsername
+      MasterUserPassword: !Ref DbMasterPassword
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      VPCSecurityGroups:
+        - !Ref DbSecurityGroup
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 7
+      Tags:
+        - Key: Name
+          Value: enrolline-db
