@@ -90,7 +90,7 @@
       AutoScalingGroupName: enrolline-asg
       MinSize: '1'
       DesiredCapacity: '1'
-      MaxSize: '2'
+      MaxSize: '4'
       VPCZoneIdentifier:
         - !Ref AppSubnetA
       LaunchTemplate:
